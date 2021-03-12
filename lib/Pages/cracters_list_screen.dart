@@ -2,6 +2,7 @@ import 'package:animals_app/styleguide.dart';
 import 'package:animals_app/widgets/characters_widgets.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:animals_app/models/characters.dart';
 
 class CharactersListScreen extends StatefulWidget {
   @override
@@ -11,6 +12,17 @@ class CharactersListScreen extends StatefulWidget {
 }
 
 class _CharactersListScreen extends State<CharactersListScreen> {
+  PageController pageController;
+
+  int currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(
+        viewportFraction: 1.0, initialPage: currentPage, keepPage: false);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,7 +38,6 @@ class _CharactersListScreen extends State<CharactersListScreen> {
         ],
       ),
       body: SafeArea(
-
         child: Padding(
           padding: const EdgeInsets.only(bottom: 16),
           child: Column(
@@ -41,7 +52,15 @@ class _CharactersListScreen extends State<CharactersListScreen> {
                   TextSpan(text: "Characteres", style: AppTheme.display2)
                 ])),
               ),
-              Expanded(child: CharachterWidgets())
+              Expanded(
+                  child: PageView(
+                    controller: pageController,
+                physics: ClampingScrollPhysics(),
+                children: <Widget>[
+                  for (var j = 0; j < chracters.length; j++)
+                    CharachterWidgets(chracters[j],pageController,j),
+                ],
+              ))
             ],
           ),
         ),

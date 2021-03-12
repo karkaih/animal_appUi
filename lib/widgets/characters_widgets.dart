@@ -5,6 +5,14 @@ import 'package:animals_app/models/characters.dart';
 import 'package:flutter/material.dart';
 
 class CharachterWidgets extends StatelessWidget {
+  Characters_widgets characters_widgets;
+
+  PageController pageController;
+  int currentPage;
+
+  CharachterWidgets(
+      this.characters_widgets, this.pageController, this.currentPage);
+
   @override
   Widget build(BuildContext context) {
     final ScreenHeight = MediaQuery.of(context).size.height;
@@ -12,51 +20,76 @@ class CharachterWidgets extends StatelessWidget {
     return InkWell(
       onTap: () {
         Navigator.of(context).push(PageRouteBuilder(
-            transitionDuration: Duration(milliseconds: 350),
-            pageBuilder: (context, _, __) => CharachterDetailScreen(chracters[0])));
+            transitionDuration: Duration(seconds: 1),
+            pageBuilder: (context, _, __) =>
+                CharachterDetailScreen(characters_widgets)));
       },
-      child: Stack(
-        children: [
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: ClipPath(
-              clipper: CharacterCardBackgroundClipper(),
-              child: Container(
-                height: 0.55 * ScreenHeight,
-                width: 0.9 * ScreenWidth,
-                decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                        colors: chracters[0].colors,
-                        begin: Alignment.topRight,
-                        end: Alignment.bottomLeft)),
-              ),
-            ),
-          ),
-          Align(
-              alignment: Alignment(0, -0.5),
-              child: Image(
-                  image: AssetImage(
-                    chracters[0].imagepath,
+      child: AnimatedBuilder(
+        animation: pageController,
+        builder: (context,child) {
+          double value = 1 ;
+          if(pageController.position.haveDimensions){
+            value = pageController.page - currentPage ;
+            value = (1-(value.abs()* 0.6)).clamp(0.0, 1);
+            if(currentPage==0) print(value);
+          }
+          return  Stack(
+            children: [
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: ClipPath(
+                  clipper: CharacterCardBackgroundClipper(),
+                  child: Hero(
+                    tag: "background-${characters_widgets.name}",
+                    child: Container(
+                      height: 0.55 * ScreenHeight,
+                      width: 0.9 * ScreenWidth,
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                              colors: characters_widgets.colors,
+                              begin: Alignment.topRight,
+                              end: Alignment.bottomLeft)),
+                    ),
                   ),
-                  height: ScreenHeight * 0.55)),
-          Padding(
-            padding: const EdgeInsets.only(left: 48, right: 16, bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  chracters[0].name,
-                  style: AppTheme.heading,
                 ),
-                Text(
-                  "Tap To read more",
-                  style: AppTheme.subHeading,
+              ),
+              Align(
+                  alignment: Alignment(0, -0.5),
+                  child: Hero(
+                    tag: "image-${characters_widgets.name}",
+                    child: Image(
+                        image: AssetImage(
+                          characters_widgets.imagepath,
+                        ),
+                        height: ScreenHeight * 0.55 * value),
+                  )),
+              Padding(
+                padding: const EdgeInsets.only(left: 48, right: 16, bottom: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Hero(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          characters_widgets.name,
+                          style: AppTheme.heading,
+                        ),
+                      ),
+                      tag: "name-${characters_widgets.name}",
+                    ),
+                    Text(
+                      "Tap To read more",
+                      style: AppTheme.subHeading,
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          )
-        ],
+              )
+            ],
+          );
+        },
+
       ),
     );
   }
